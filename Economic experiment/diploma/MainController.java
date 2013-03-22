@@ -1,11 +1,7 @@
 package diploma;
 
-import java.io.IOException;
-import java.lang.Thread.State;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.Vector;
+import java.util.ArrayList;
+
 
 public class MainController
 {
@@ -26,10 +22,11 @@ public class MainController
 	
 	public enum Role
 	{
-		MANAGER		(0, "Manager"),
-		EMPLOYEE	(1, "Employee");
+		MANAGER		(0, "Owner"),
+		EMPLOYEE	(1, "Manager");
 		
 		private String 	_strRole;
+		@SuppressWarnings("unused")
 		private int		_id;
 		
 		Role(int id, String description)
@@ -52,10 +49,9 @@ public class MainController
 	private int				_currentRound;
 	private Double			_managerProposal;	
 	private Double 			_clientResponse;
-	private Double			_previousManagerProposal;	
-	private Double 			_previousClientResponse;
 	private Logger			_logger;
-	
+	public ArrayList<ManageInfo> managerInfo = new ArrayList<ManageInfo>();
+	public ArrayList<EmployerInfo> employerInfo = new ArrayList<EmployerInfo>();
 	// ----------------------------------------------------------------------	
 	public MainController()
 	{
@@ -68,8 +64,6 @@ public class MainController
 		this._managerProposal = 0.0;
 		this._clientResponse = 0.0;
 		this._currentRound = 0;
-		this._previousManagerProposal = 0.0;
-		this._previousClientResponse = 0.0;
 		this._logger = new Logger();
 	}
 	
@@ -154,6 +148,7 @@ public class MainController
 		}
 	}
 	
+	@SuppressWarnings("incomplete-switch")
 	public void next()
 	{
 		if (this._view == null)
@@ -246,23 +241,21 @@ public class MainController
 		this._clientResponse = percents;
 				
 		_logger.logManagerRound(this._currentRound, this._managerProposal, this._clientResponse, this.getCurrentProfit());
+		ManageInfo mi = new ManageInfo(this._currentRound, this._managerProposal, this._clientResponse, this.getCurrentProfit());
 		
-		if (this._currentRound % 2 == 0 &&
-			_previousManagerProposal.equals(_managerProposal) &&
-			_previousClientResponse.equals(_clientResponse))
-		{
+		if(ManageInfo.contains(managerInfo, mi))
+		{	
+			
 			this.setState(State.THE_END);
 			
 			if (this._view != null)
 			{
 				this._view.setControlsState(true);
-				this._view.showSuccess("Success!");				
+				this._view.showSuccess("Success!" + "\n"+ "Your profit: " + this.getCurrentProfit());				
 			}
 			return;
 		}
-		
-		_previousManagerProposal = _managerProposal;
-		_previousClientResponse = _clientResponse;
+		managerInfo.add(mi);
 		
 		this._currentRound++;
 		
@@ -299,24 +292,21 @@ public class MainController
 	public void clientResponseSent()
 	{
 		_logger.logEmployeeRound(this._currentRound, this._managerProposal, this._clientResponse, this.getCurrentProfit());
+		EmployerInfo ei = new EmployerInfo(this._currentRound, this._managerProposal, this._clientResponse, this.getCurrentProfit());
 		
-		if (this._currentRound % 2 == 0 &&
-			_previousManagerProposal.equals(_managerProposal) &&
-			_previousClientResponse.equals(_clientResponse))
+		if(EmployerInfo.contains(employerInfo, ei))
 		{
 			this.setState(State.THE_END);
 			
 			if (this._view != null)
 			{
 				this._view.setControlsState(true);
-				this._view.showSuccess("Success!");				
+				this._view.showSuccess("Success!" + "\n"+ "Your profit: " + this.getCurrentProfit());				
 			}
 			return;
 		}
 		
-		_previousManagerProposal = _managerProposal;
-		_previousClientResponse = _clientResponse;
-		
+		employerInfo.add(ei);
 		this._currentRound++;
 				
 		if (this._currentRound > Config.NUMBER_OF_ROUNDS)

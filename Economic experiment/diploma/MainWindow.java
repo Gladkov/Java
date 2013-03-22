@@ -5,8 +5,10 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -16,14 +18,21 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+
 import diploma.MainController.Role;
 import diploma.MainController.State;
 
 public class MainWindow extends JFrame implements ActionListener, DocumentListener
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	MainController						_controller;
 	JPanel								_parentPanel;
 	Map<MainController.State, JPanel> 	_panels;
@@ -32,6 +41,7 @@ public class MainWindow extends JFrame implements ActionListener, DocumentListen
 	
 	JButton 			_next;
 	JRadioButton		_roleManager, _roleEmployee;
+	@SuppressWarnings("rawtypes")
 	JComboBox			_formulas;
 	JTextField			_managerAddress;
 	JTextField			_managerProposal;
@@ -44,7 +54,12 @@ public class MainWindow extends JFrame implements ActionListener, DocumentListen
 	JLabel				_proposalFromManager;	
 	JTextField			_clientResponse;	
 	JLabel				_clientProfit;
-		
+	JScrollPane        _forTableManager;
+	JScrollPane		   _forTableEmployee;
+	
+	ArrayList<ManageInfo> _managerInfo = new ArrayList<ManageInfo>();
+	ArrayList<EmployerInfo> _employeeInfo = new ArrayList<EmployerInfo>();
+	
 	public MainWindow()
 	{
 		this._controller = null;
@@ -61,6 +76,7 @@ public class MainWindow extends JFrame implements ActionListener, DocumentListen
 		this.setVisible(true);
 	}
 	
+	@SuppressWarnings("rawtypes")
 	private void initializeGui()
 	{
 		JPanel panel;		
@@ -93,16 +109,16 @@ public class MainWindow extends JFrame implements ActionListener, DocumentListen
 		
 		// Waiting for client 
 		panel = new JPanel();
-		panel.setBorder(BorderFactory.createTitledBorder("Employee connection waiting"));
+		panel.setBorder(BorderFactory.createTitledBorder("Manager connection waiting"));
 		panel.setLayout(new FlowLayout());
-		panel.add(new JLabel("Press next to start waiting for client"));
+		panel.add(new JLabel("Press next to start waiting for manager"));
 		_panels.put(State.WAITING_FOR_EMPLOYEE, panel);
 		
 		// Manager address
 		panel = new JPanel();
-		panel.setBorder(BorderFactory.createTitledBorder("Input manager address"));
+		panel.setBorder(BorderFactory.createTitledBorder("Input owner IP address"));
 		panel.setLayout(new GridLayout(2, 1));
-		panel.add(new JLabel("IP address or hostname of the manager:"));
+		panel.add(new JLabel("IP address or hostname of the owner:"));
 		_managerAddress = new JTextField("localhost");
 		panel.add(_managerAddress);
 		_panels.put(State.WAITING_FOR_MANAGER_ADDRESS, panel);
@@ -110,22 +126,36 @@ public class MainWindow extends JFrame implements ActionListener, DocumentListen
 		// Waiting for proposal
 		panel = new JPanel();
 		panel.setBorder(BorderFactory.createTitledBorder("Waiting for proposal"));
-		panel.setLayout(new FlowLayout());
-		panel.add(new JLabel("Please wait for proposal from manager"));
+		panel.setLayout(new BorderLayout());
+		panel.add(new JLabel("Please wait for proposal from owner"), BorderLayout.NORTH);
+	//	if(_employeeInfo.size() > 0){
+	//	System.out.println(_employeeInfo.size());
+		JTable tableForEmp = new JTable(new TableModelForEmploye(_employeeInfo));
+		tableForEmp.setPreferredScrollableViewportSize(
+		         new Dimension(
+		        		 tableForEmp.getPreferredScrollableViewportSize().width,
+		             3 * tableForEmp.getRowHeight()
+		     ));
+		tableForEmp.getTableHeader().setReorderingAllowed(false);
+		_forTableEmployee = new JScrollPane(tableForEmp);
+		panel.add(_forTableEmployee, BorderLayout.CENTER);
+		//}
+		_clientProfit = new JLabel();
+	//	panel.add(_clientProfit,BorderLayout.SOUTH);
 		_panels.put(State.WAITING_FOR_PROPOSAL, panel);
 		
 		// Waiting for response
 		panel = new JPanel();
 		panel.setBorder(BorderFactory.createTitledBorder("Waiting for response"));
 		panel.setLayout(new FlowLayout());
-		panel.add(new JLabel("Please wait for response from client"));
+		panel.add(new JLabel("Please wait for response from manager"));
 		_panels.put(State.WAITING_FOR_RESPONSE, panel);
 		
 		// Preparing initial proposal
 		panel = new JPanel();
 		panel.setBorder(BorderFactory.createTitledBorder("Preparing initial proposal"));
 		panel.setLayout(new GridLayout(2, 1));
-		panel.add(new JLabel("Input your proposal to employee:"));
+		panel.add(new JLabel("Input your proposal to manager:"));
 		_managerProposal = new JTextField();
 		panel.add(_managerProposal);
 		_panels.put(State.PREPARING_INITIAL_PROPOSAL, panel);
@@ -133,17 +163,21 @@ public class MainWindow extends JFrame implements ActionListener, DocumentListen
 		// Preparing next proposal
 		panel = new JPanel();
 		panel.setBorder(BorderFactory.createTitledBorder("Preparing next proposal"));
-		panel.setLayout(new GridLayout(5, 1));
+		panel.setLayout(new BorderLayout());
 		_managerRound = new JLabel();
-		panel.add(_managerRound);
-		_managerPreviousProposal = new JLabel();
-		panel.add(_managerPreviousProposal);
-		_managerClientResponse = new JLabel();
-		panel.add(_managerClientResponse);
-		_managerProfit = new JLabel();
-		panel.add(_managerProfit);
+		panel.add(_managerRound, BorderLayout.NORTH);
 		_managerNextProposal = new JTextField();
-		panel.add(_managerNextProposal);
+		panel.add(_managerNextProposal, BorderLayout.CENTER);
+		
+		JTable tableForMan = new JTable(new TableModelForManager(_managerInfo));
+		tableForMan.setPreferredScrollableViewportSize(
+		         new Dimension(
+		        		tableForMan.getPreferredScrollableViewportSize().width,
+		             3 * tableForMan.getRowHeight()
+		     ));
+		tableForMan.getTableHeader().setReorderingAllowed(false);
+		_forTableManager = new JScrollPane(tableForMan);
+		panel.add(_forTableManager, BorderLayout.SOUTH);
 		_panels.put(State.PREPARING_NEXT_PROPOSAL, panel);
 		
 		// Preparing response
@@ -154,11 +188,11 @@ public class MainWindow extends JFrame implements ActionListener, DocumentListen
 		panel.add(_clientRound);
 		_proposalFromManager = new JLabel();
 		panel.add(_proposalFromManager);
+		/*_clientProfit = new JLabel();
+		panel.add(_clientProfit);*/
 		_clientResponse = new JTextField();
 		_clientResponse.getDocument().addDocumentListener(this);
 		panel.add(_clientResponse);
-		_clientProfit = new JLabel();
-		panel.add(_clientProfit);
 		_panels.put(State.PREPARING_RESPONSE, panel);
 		
 		// The end
@@ -171,7 +205,7 @@ public class MainWindow extends JFrame implements ActionListener, DocumentListen
 		// Control panel
 		_controlPanel = new JPanel();
 		_controlPanel.setLayout(new FlowLayout());
-		_next = new JButton("Next >");
+		_next = new JButton("Далее >");
 		_next.setActionCommand("command_next");
 		_next.addActionListener(this);
 		_controlPanel.add(_next);
@@ -188,6 +222,7 @@ public class MainWindow extends JFrame implements ActionListener, DocumentListen
 		this._controller = controller;
 	}
 
+	@SuppressWarnings("unchecked")
 	public void refreshContents()
 	{
 		if (this._controller == null)
@@ -220,15 +255,25 @@ public class MainWindow extends JFrame implements ActionListener, DocumentListen
 		else if (_controller.getState() == State.PREPARING_NEXT_PROPOSAL)
 		{
 			_managerRound.setText("Current round: " + _controller.getRound());
-			_managerPreviousProposal.setText("Your previous proposal: " + _controller.getManagerProposal());
+			//* Firt version
+			/*_managerPreviousProposal.setText("Your previous proposal: " + _controller.getManagerProposal());
 			_managerClientResponse.setText("Response from client: " + _controller.getClientResponse());
-			_managerProfit.setText("Your profit: " + _controller.getCurrentProfit());
+			_managerProfit.setText("Your profit: " + _controller.getCurrentProfit());*/
+			//* Last modification
+			_managerInfo.add(new ManageInfo(_controller.getRound(), _controller.getManagerProposal(),
+					_controller.getClientResponse(),_controller.getCurrentProfit()));
+			/*_employeeInfo.add(new EmployerInfo(_controller.getRound(), _controller.getManagerProposal(),
+					_controller.getClientResponse(),_controller.getCurrentProfit()));*/
+			
 		}
 		else if (_controller.getState() == State.PREPARING_RESPONSE)
 		{
 			_clientRound.setText("Current round: " + _controller.getRound());
-			_proposalFromManager.setText("Proposal from manager: " + _controller.getManagerProposal());
-			_clientProfit.setText("");
+			_proposalFromManager.setText("Proposal from owner: " + _controller.getManagerProposal());
+			//_clientProfit.setText("Your profit: " + _controller.getCurrentProfit());
+		if(!(_controller.getRound() == 1))
+			_employeeInfo.add(new EmployerInfo(_controller.getRound(), _controller.getManagerProposal(),
+					_controller.getClientResponse(),_controller.getCurrentProfit()));
 		}
 		
 		this.switchToPanelByState(this._controller.getState());		
@@ -283,6 +328,10 @@ public class MainWindow extends JFrame implements ActionListener, DocumentListen
 					
 					_clientProfit.setText("Your profit will be: " + 
 							_controller.getFormula().evaluate(_controller.getManagerProposal(), percents));
+					if(_controller.getRound() == 1)
+					_employeeInfo.add(new EmployerInfo(_controller.getRound(), _controller.getManagerProposal(),
+							percents,_controller.getFormula().evaluate(_controller.getManagerProposal(), percents)));
+					
 				}
 				catch (Exception e)
 				{
@@ -291,7 +340,7 @@ public class MainWindow extends JFrame implements ActionListener, DocumentListen
 			}
 			else
 			{
-				_clientProfit.setText("");
+				//_clientProfit.setText("");
 			}
 		}
 	}
@@ -373,4 +422,5 @@ public class MainWindow extends JFrame implements ActionListener, DocumentListen
 	{
 		this.calculateEmployeeProfit();
 	}
+
 }

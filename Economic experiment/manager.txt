@@ -1,0 +1,14 @@
+--------------------------------------------------------------------------------
+Round: 1 Manager propose: 45.0 Client responds: 1.0 Profit: 46.0
+Round: 2 Manager propose: 34.0 Client responds: 1.0 Profit: 35.0
+Round: 3 Manager propose: 6.0 Client responds: 1.0 Profit: 7.0
+Round: 4 Manager propose: 100.0 Client responds: 1.0 Profit: 101.0
+Round: 5 Manager propose: 56.0 Client responds: 1.0 Profit: 57.0
+Round: 6 Manager propose: 56.0 Client responds: 1.0 Profit: 57.0
+--------------------------------------------------------------------------------
+Round: 1 Manager propose: 34.0 Client responds: 1.0 Profit: 35.0
+Round: 2 Manager propose: 34.0 Client responds: 1.0 Profit: 35.0
+--------------------------------------------------------------------------------
+Round: 1 Manager propose: 34.0 Client responds: 1.0 Profit: 35.0
+Round: 2 Manager propose: 4.0 Client responds: 1.0 Profit: 5.0
+Round: 3 Manager propose: 1.0 Client responds: 1.0 Profit: 2.0

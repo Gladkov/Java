@@ -40,15 +40,15 @@ public class Logger
 	
 	public void logManagerRound(int round, Double proposal, Double percents, Double profit)
 	{
-		_file.println("Round: " + round + ". Manager propose: " + proposal + ". Client responds: " + percents + 
-				". Profit: " + profit);
+		_file.println("Round: " + round + " Manager propose: " + proposal + " Client responds: " + percents + 
+				" Profit: " + profit);
 		_file.flush();
 	}
 	
 	public void logEmployeeRound(int round, Double proposal, Double percents, Double profit)
 	{
-		_file.println("Round: " + round + ". Manager propose: " + proposal + ". Client responds: " + percents + 
-				". Profit: " + profit);
+		_file.println("Round: " + round + " Manager propose: " + proposal + " Client responds: " + percents + 
+				" Profit: " + profit);
 		_file.flush();
 	}
 }

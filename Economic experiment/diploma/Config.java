@@ -106,9 +106,9 @@ public class Config
 	
 	public static final int NUMBER_OF_ROUNDS = 10;
 	
-	public static final String MANAGER_LOG_FILENAME = "manager.txt";
+	public static final String MANAGER_LOG_FILENAME = "owner.txt";
 	
-	public static final String EMPLOYEE_LOG_FILENAME = "client.txt";
+	public static final String EMPLOYEE_LOG_FILENAME = "manager.txt";
 	
 	public static final Double MANAGER_PROPOSAL_MIN = 0.0;	
 	public static final Double MANAGER_PROPOSAL_MAX = 100.0;

@@ -1,8 +1,7 @@
 import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
 
-import diploma.*;
+import diploma.MainController;
+import diploma.MainWindow;
 
 public class Base
 {
